@@ -1,7 +1,14 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import Router from "./route/Router";
 
 const App = () => {
-  return <div className=" bg-red-500">App</div>;
+  const [allRoutes, setAllRoutes] = useState();
+
+  useEffect(() => {
+    setAllRoutes([...allRoutes]);
+  }, []);
+
+  return <Router allRoutes={allRoutes} />;
 };
 
 export default App;
