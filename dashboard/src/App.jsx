@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Router from "./route/Router";
+import authRoute from "./route/authRoute";
 
 const App = () => {
-  const [allRoutes, setAllRoutes] = useState();
+  const [allRoutes, setAllRoutes] = useState([...authRoute]);
 
   useEffect(() => {
     setAllRoutes([...allRoutes]);
