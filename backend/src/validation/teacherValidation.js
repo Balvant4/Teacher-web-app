@@ -9,7 +9,7 @@ const phoneRegex = /^[0-9]{10,15}$/;
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-export const teacherSchema = z.object({
+export const teacherValidation = z.object({
   fullName: z
     .string()
     .min(3, "Full name must be at least 3 characters long")
