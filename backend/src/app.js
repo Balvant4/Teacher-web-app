@@ -1,5 +1,5 @@
 import express from "express";
-import authRouter from "./routes/authRoute";
+import authRouter from "./routes/authRoute.js";
 import bodyParser from "body-parser";
 import cookieparser from "cookie-parser";
 import cors from "cors";
@@ -8,13 +8,17 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   })
 );
+
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(cookieparser());
-app.use(express.json());
+
 app.use("/api/v1/auth", authRouter);
 
 export default app;

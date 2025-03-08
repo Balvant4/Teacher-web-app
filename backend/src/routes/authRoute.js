@@ -1,6 +1,6 @@
 import { Router } from "express";
+import { teacherValidation } from "../validation/teacherValidation.js";
 import { TeacherRegister } from "../controllers/teacherAuthController.js";
-import { teacherValidation } from "../validation/teacherValidation";
 
 const authRouter = Router();
 
