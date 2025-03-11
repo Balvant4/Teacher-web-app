@@ -7,16 +7,26 @@ const passwordRegex =
 // Define phone number regex (only numbers, 10-15 digits)
 const phoneRegex = /^[0-9]{10,15}$/;
 
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
 export const teacherValidation = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters long")
+    .max(20, "Username cannot exceed 20 characters")
+    .regex(
+      /^[a-z0-9_]+$/,
+      "Username can only contain lowercase letters, numbers, and underscores"
+    ),
+
   fullName: z
     .string()
     .min(3, "Full name must be at least 3 characters long")
     .max(50, "Full name cannot exceed 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Full name should contain only letters and spaces"),
+    .regex(
+      /^[a-zA-Z\s'’-]+$/,
+      "Full name should contain only letters, spaces, apostrophes, or hyphens"
+    ),
 
-  email: z.string().regex(emailRegex, "Invalid email format"),
+  email: z.string().email("Invalid email format"),
 
   password: z
     .string()
@@ -48,17 +58,13 @@ export const teacherValidation = z.object({
 
   experience: z
     .number()
+    .int()
     .min(1, "Experience must be at least 1 year")
     .max(50, "Experience cannot exceed 50 years"),
 
   language: z
     .array(z.string().min(2, "Language name must be at least 2 characters"))
     .min(1, "At least one language is required"),
-
-  profilePicture: z
-    .string()
-    .url("Profile picture must be a valid URL")
-    .optional(),
 
   biography: z
     .string()
