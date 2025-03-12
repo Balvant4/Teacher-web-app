@@ -45,7 +45,7 @@ const teacherSchema = z.object({
       "Phone number must be between 10-15 digits and contain only numbers"
     ),
 
-  Teachingmode: z
+  teachingMode: z
     .array(z.enum(["Online", "Offline", "Hybrid"]))
     .min(1, "At least one teaching mode is required"),
 
