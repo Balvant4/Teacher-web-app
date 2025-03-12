@@ -1,13 +1,14 @@
 import { z } from "zod";
 
-// Define strong password regex (at least 8 characters, one uppercase, one lowercase, one number, and one special character)
+// Define strong password regex
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-// Define phone number regex (only numbers, 10-15 digits)
+// Define phone number regex
 const phoneRegex = /^[0-9]{10,15}$/;
 
-export const teacherValidation = z.object({
+// Define Zod schema
+const teacherSchema = z.object({
   username: z
     .string()
     .min(3, "Username must be at least 3 characters long")
@@ -76,3 +77,13 @@ export const teacherValidation = z.object({
 
   status: z.enum(["Pending", "Approved", "Rejected"]).default("Pending"),
 });
+
+// **Middleware function for validation**
+export const validateTeacher = (req, res, next) => {
+  try {
+    req.body = teacherSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({ error: error.errors });
+  }
+};
