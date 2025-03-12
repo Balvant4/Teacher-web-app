@@ -2,6 +2,8 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import Teacher from "../models/teacher.auth.model.js";
+import cloudinaryUpload from "../utils/Cloudinary.js";
+import fs from "fs";
 
 const TeacherRegister = asyncHandler(async (req, res, next) => {
   const {
@@ -20,10 +22,9 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
 
   // Validate required fields
   if (
-    [username, fullName, email, password, phone].some(
+    [username, fullName, email, password, phone, experience].some(
       (field) => typeof field === "string" && field.trim() === ""
     ) ||
-    experience === undefined ||
     !Array.isArray(teachingMode) ||
     teachingMode.length === 0 ||
     !Array.isArray(subjectsTaught) ||
@@ -45,6 +46,19 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
     return next(new ApiError(401, "Username or email already in use"));
   }
 
+  const localfilepath = req.file?.path.replace(/\\/g, "/");
+
+  const result = await cloudinaryUpload(localfilepath);
+
+  if (!result) {
+    return next(new ApiError(500, "upload failed"));
+  }
+
+  // ✅ Delete local file after successful Cloudinary upload
+  fs.unlink(localfilepath, (err) => {
+    if (err) console.error("Error deleting file:", err);
+  });
+
   // Create new teacher
   const teacher = await Teacher.create({
     username,
@@ -58,6 +72,7 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
     experience,
     language,
     biography,
+    profilePicture: result.secure_url,
   });
 
   // Fetch created teacher without password & refreshToken

@@ -58,8 +58,7 @@ const teacherSchema = z.object({
     .min(1, "At least one class is required"),
 
   experience: z
-    .number()
-    .int()
+    .string()
     .min(1, "Experience must be at least 1 year")
     .max(50, "Experience cannot exceed 50 years"),
 
