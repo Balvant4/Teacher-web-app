@@ -4,6 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import Teacher from "../models/teacher.auth.model.js";
 import cloudinaryUpload from "../utils/Cloudinary.js";
 import fs from "fs";
+import sendEmail from "../utils/sendEmail.js";
 
 const TeacherRegister = asyncHandler(async (req, res, next) => {
   const {
@@ -75,6 +76,13 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
     profilePicture: result.secure_url,
   });
 
+  // ✅ Send email notification to admin
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const emailSubject = "New Teacher Registration Pending Approval";
+  const emailText = `A new teacher (${fullName}, ${email}) has registered. Please review and approve their profile This is the full details of admin ${teacher}.`;
+
+  await sendEmail(adminEmail, emailSubject, emailText);
+
   // Fetch created teacher without password & refreshToken
   const createdTeacher = await Teacher.findById(teacher._id).select(
     "-password -refreshToken"
@@ -89,7 +97,11 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(201, "Teacher registered successfully", createdTeacher)
+      new ApiResponse(
+        201,
+        "Teacher registered successfully! Awaiting admin approval.",
+        createdTeacher
+      )
     );
 });
 
