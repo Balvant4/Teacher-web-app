@@ -6,7 +6,25 @@ import cloudinaryUpload from "../utils/Cloudinary.js";
 import fs from "fs";
 import sendEmail from "../utils/sendEmail.js";
 
-const TeacherRegister = asyncHandler(async (req, res, next) => {
+const generateAccessAndRefereshTokens = async (teacherId) => {
+  try {
+    const teacher = await Teacher.findById(teacherId);
+    const accessToken = teacher.generateAccessToken();
+    const refreshToken = teacher.generateRefreshToken();
+
+    teacher.refreshToken = refreshToken;
+    await teacher.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    return new ApiError(
+      500,
+      "Something while wrong when generating refresh and access token"
+    );
+  }
+};
+
+const RegisterTeacher = asyncHandler(async (req, res, next) => {
   const {
     username,
     fullName,
@@ -105,4 +123,80 @@ const TeacherRegister = asyncHandler(async (req, res, next) => {
     );
 });
 
-export { TeacherRegister };
+const LoginTeacher = asyncHandler(async (req, res, next) => {
+  const { username, email, password } = req.body;
+
+  const teacher = await Teacher.findOne({
+    $or: [{ username }, { email }],
+  });
+
+  if (!teacher) {
+    return next(new ApiError(401, "Teacher does not exist"));
+  }
+
+  if (teacher.isApproved !== false || teacher.status !== "Approved") {
+    return next(new ApiError(401, "Your account is not approved yet"));
+  }
+
+  const isPasswordValid = await teacher.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    return next(new ApiError(401, "Password Incorrect"));
+  }
+
+  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+    teacher._id
+  );
+
+  const loggedInTeacher = await Teacher.findById(teacher._id).select(
+    "-password -refreshToken"
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          teacher: loggedInTeacher,
+          accessToken,
+          refreshToken,
+        },
+        "User logged In successfully"
+      )
+    );
+});
+
+const LogoutTeacher = asyncHandler(async (req, res, next) => {
+  Teacher.findByIdAndUpdate(
+    req.teacher._id,
+    {
+      $set: {
+        refreshToken: undefined,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged Out"));
+});
+
+export { RegisterTeacher, LoginTeacher, LogoutTeacher };
