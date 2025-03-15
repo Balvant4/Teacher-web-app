@@ -19,6 +19,6 @@ app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(cookieparser());
 
-app.use("/api/v1/auth/teacher", authRouter);
+app.use("/api/v1/auth/", authRouter);
 
 export default app;

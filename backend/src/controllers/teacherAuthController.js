@@ -134,9 +134,9 @@ const LoginTeacher = asyncHandler(async (req, res, next) => {
     return next(new ApiError(401, "Teacher does not exist"));
   }
 
-  if (teacher.isApproved !== false || teacher.status !== "Approved") {
-    return next(new ApiError(401, "Your account is not approved yet"));
-  }
+  // if (teacher.isApproved !== false || teacher.status !== "Approved") {
+  //   return next(new ApiError(401, "Your account is not approved yet"));
+  // }
 
   const isPasswordValid = await teacher.isPasswordCorrect(password);
 
