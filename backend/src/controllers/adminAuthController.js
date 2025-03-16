@@ -60,37 +60,45 @@ const createAdmin = asyncHandler(async (req, res) => {
 const AdminLogin = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
-  const admin = await Admin.findOne({
-    $or: [{ username }, { email }],
-  });
+  // ✅ Check if admin exists using username or email
+  const admin = await Admin.findOne({ $or: [{ username }, { email }] });
 
   if (!admin) {
     throw new ApiError(404, "Admin not found");
   }
 
-  const isPasswordValid = await admin.isPasswordCorrect(password);
+  // ✅ Ensure the user has an 'admin' role
+  if (admin.role !== "admin") {
+    throw new ApiError(403, "Unauthorized access - Not an admin");
+  }
 
+  // ✅ Validate password
+  const isPasswordValid = await admin.isPasswordCorrect(password);
   if (!isPasswordValid) {
     throw new ApiError(400, "Invalid Password");
   }
 
+  // ✅ Generate tokens
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
     admin._id
   );
 
+  // ✅ Get admin details excluding sensitive fields
   const loggedInAdmin = await Admin.findById(admin._id).select(
     "-password -refreshToken"
   );
 
-  const options = {
+  // ✅ Secure cookie options
+  const cookieOptions = {
     httpOnly: true,
     secure: true,
   };
 
+  // ✅ Send response with cookies & admin details
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions)
     .json(
       new ApiResponse(
         200,
@@ -99,11 +107,9 @@ const AdminLogin = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
         },
-        "Teacher logged In successfully"
+        "Admin logged in successfully"
       )
     );
-
-  //
 });
 
 const AdminLogout = asyncHandler(async (req, res) => {
@@ -133,60 +139,3 @@ const AdminLogout = asyncHandler(async (req, res) => {
 });
 
 export { createAdmin, AdminLogin, AdminLogout };
-
-// export const createAdmin = async (req, res) => {
-//   try {
-//     const { username, email, password } = req.body;
-
-//     // Check if admin already exists
-//     const existingAdmin = await Admin.findOne({ email });
-//     if (existingAdmin)
-//       return res.status(400).json({ message: "Admin already exists" });
-
-//     // Hash password before saving
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Create new admin
-//     const newAdmin = new Admin({
-//       username,
-//       email,
-//       password: hashedPassword,
-//       role: "admin",
-//     });
-//     await newAdmin.save();
-
-//     res.json({ message: "✅ New Admin Created Successfully!" });
-//   } catch (error) {
-//     res.status(500).json({ message: "❌ Server Error", error });
-//   }
-// };
-
-// export const loginAdmin = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     // Check if admin exists
-//     const admin = await Admin.findOne({ email });
-//     if (!admin) return res.status(404).json({ message: "Admin not found" });
-
-//     // Check password
-//     const isMatch = await bcrypt.compare(password, admin.password);
-//     if (!isMatch)
-//       return res.status(400).json({ message: "Invalid credentials" });
-
-//     // Generate JWT token
-//     const token = jwt.sign(
-//       { id: admin._id, role: admin.role },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "1d" }
-//     );
-
-//     if (!token) {
-//       return res.status(400).json({ message: "Token error" });
-//     }
-
-//     res.json({ message: "Login successful", token });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error });
-//   }
-// };
