@@ -40,7 +40,7 @@ const AdminLogin = () => {
 
       // Navigate after a short delay to ensure the user sees the toast
       setTimeout(() => {
-        navigate("/");
+        navigate("/admin/dashboard");
       }, 1000); // 1-second delay
     }
   }, [error, successMessage, navigate]);

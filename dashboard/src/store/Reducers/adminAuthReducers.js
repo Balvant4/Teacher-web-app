@@ -16,12 +16,28 @@ export const adminLogin = createAsyncThunk(
   }
 );
 
+// ✅ Async thunk for admin logout
+export const adminLogout = createAsyncThunk(
+  "admin/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/auth/admin/logout", null, {
+        withCredentials: true,
+      });
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Logout");
+    }
+  }
+);
+
 // ✅ Initial state
 const initialState = {
   admin: null,
   loading: false,
   error: null,
   successMessage: null,
+  logoutMessage: null,
 };
 
 // ✅ Admin authentication slice
@@ -50,6 +66,28 @@ const adminAuthSlice = createSlice({
         Object.assign(state, {
           loading: false,
           error: typeof payload === "string" ? payload : "An error occurred",
+        });
+      })
+
+      //For Logout funclity
+      .addCase(adminLogout.pending, (state) => {
+        Object.assign(state, {
+          loading: true,
+          error: null,
+        });
+      })
+      .addCase(adminLogout.fulfilled, (state, { payload }) => {
+        Object.assign(state, {
+          admin: null,
+          loading: false,
+          error: null,
+          logoutMessage: payload.message || "Logout",
+        });
+      })
+      .addCase(adminLogout.rejected, (state, { payload }) => {
+        Object.assign(state, {
+          loading: false,
+          error: typeof payload === "string" ? payload : "Logout failed",
         });
       });
   },
