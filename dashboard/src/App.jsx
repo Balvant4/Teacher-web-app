@@ -7,8 +7,7 @@ const App = () => {
   const [allRoutes, setAllRoutes] = useState([...authRoute]);
 
   useEffect(() => {
-    const getroutes = getallPrivateRoutes();
-    setAllRoutes([...allRoutes, getroutes]);
+    setAllRoutes([...authRoute, getallPrivateRoutes()]);
   }, []);
 
   return <Router allRoutes={allRoutes} />;

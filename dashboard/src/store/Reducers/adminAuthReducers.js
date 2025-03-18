@@ -9,7 +9,7 @@ export const adminLogin = createAsyncThunk(
       const { data } = await api.post("/auth/admin/login", adminData, {
         withCredentials: true,
       });
-      return data; // Return full API response
+      return data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
@@ -26,7 +26,7 @@ export const adminLogout = createAsyncThunk(
       });
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Logout");
+      return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
   }
 );
@@ -34,17 +34,19 @@ export const adminLogout = createAsyncThunk(
 // ✅ Initial state
 const initialState = {
   admin: null,
+  isAuthenticated: !!localStorage.getItem("role"),
   loading: false,
   error: null,
   successMessage: null,
   logoutMessage: null,
+  role: localStorage.getItem("role") || null,
 };
 
 // ✅ Admin authentication slice
 const adminAuthSlice = createSlice({
   name: "adminAuth",
   initialState,
-  reducers: {}, // No extra reducers needed
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(adminLogin.pending, (state) => {
@@ -55,9 +57,16 @@ const adminAuthSlice = createSlice({
         });
       })
       .addCase(adminLogin.fulfilled, (state, { payload }) => {
+        const adminData = payload.data?.admin || null;
+        const role = adminData?.role || "guest";
+
+        localStorage.setItem("role", role);
+
         Object.assign(state, {
           loading: false,
-          admin: payload.data?.admin || null,
+          admin: adminData,
+          role: role,
+          isAuthenticated: true,
           successMessage: payload.message || "Login successful",
           error: null,
         });
@@ -69,19 +78,18 @@ const adminAuthSlice = createSlice({
         });
       })
 
-      //For Logout funclity
-      .addCase(adminLogout.pending, (state) => {
-        Object.assign(state, {
-          loading: true,
-          error: null,
-        });
-      })
+      // ✅ Handle Logout
       .addCase(adminLogout.fulfilled, (state, { payload }) => {
+        localStorage.removeItem("role");
+
         Object.assign(state, {
           admin: null,
+          role: null,
+          isAuthenticated: false,
           loading: false,
           error: null,
-          logoutMessage: payload.message || "Logout",
+          successMessage: null,
+          logoutMessage: payload.message || "Logout successful",
         });
       })
       .addCase(adminLogout.rejected, (state, { payload }) => {

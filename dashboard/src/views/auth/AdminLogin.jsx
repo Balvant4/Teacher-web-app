@@ -1,30 +1,33 @@
 import InputForm from "../../components/InputForm";
 import MainButton from "../../components/MainButton";
 import { MdEmail, MdLock } from "react-icons/md";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../../store/Reducers/adminAuthReducers";
 import { toast } from "react-hot-toast";
 
 const AdminLogin = () => {
-  // State initialization
   const [state, setState] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get values from Redux
-  const { loading, error, successMessage } = useSelector(
+  const { loading, error, successMessage, role } = useSelector(
     (state) => state.adminAuth
   );
 
-  // Handle input changes
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    if (role === "admin") {
+      navigate("/admin/dashboard"); // ✅ Redirect only when role is set
+    }
+  }, [role, navigate]);
+
   const inputHandle = useCallback((e) => {
     const { name, value } = e.target;
     setState((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // Form submit handler
   const submit = (e) => {
     e.preventDefault();
     dispatch(adminLogin(state));
@@ -37,18 +40,13 @@ const AdminLogin = () => {
 
     if (successMessage) {
       toast.success(successMessage);
-
-      // Navigate after a short delay to ensure the user sees the toast
-      setTimeout(() => {
-        navigate("/admin/dashboard");
-      }, 1000); // 1-second delay
+      navigate("/admin/dashboard"); // ✅ Navigate immediately
     }
   }, [error, successMessage, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#ffffff]">
       <div className="w-full max-w-lg p-8 bg-white rounded-xl shadow-lg">
-        {/* Logo */}
         <div className="flex justify-center">
           <img className="w-[20rem] mb-4" src="" alt="Admin Logo" />
         </div>
@@ -56,7 +54,6 @@ const AdminLogin = () => {
           Admin Login
         </h2>
         <form onSubmit={submit} className="mt-8 space-y-4">
-          {/* Reusable Input Components */}
           <InputForm
             name="email"
             type="email"
@@ -73,7 +70,6 @@ const AdminLogin = () => {
             value={state.password}
             onChange={inputHandle}
           />
-          {/* Submit Button */}
           <MainButton
             text={loading ? "Logging in..." : "Login"}
             className="my-4 w-full bg-indigo-600 hover:bg-indigo-700 rounded-xl text-white font-semibold py-3 transition duration-300 ease-in-out transform hover:scale-105"

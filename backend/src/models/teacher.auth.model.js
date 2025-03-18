@@ -59,6 +59,10 @@ const teacherSchema = new mongoose.Schema(
     biography: {
       type: String,
     },
+    role: {
+      type: String,
+      default: "teacher",
+    },
     isApproved: {
       type: Boolean,
       default: false,
