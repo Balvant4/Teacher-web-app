@@ -161,6 +161,7 @@ const LoginTeacher = asyncHandler(async (req, res, next) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
+
     .json(
       new ApiResponse(
         200,

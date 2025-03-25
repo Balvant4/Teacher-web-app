@@ -18,7 +18,7 @@ function Sidebar({ showSidebar, setShowSidebar }) {
         onClick={() => setShowSidebar(false)}
         className={` fixed duration-200 ${
           !showSidebar ? "invisible" : "visible"
-        } w-screen h-screen top-0 left-0 z-10 bg-[#8cbce780]`}
+        } w-screen h-screen top-0 left-0 z-10 bg-[#101426]`}
       ></div>
       <div
         className={`w-[260px] fixed bg-sidnavbg z-50 top-0 h-screen shadow-md transition-all ${
@@ -46,8 +46,8 @@ function Sidebar({ showSidebar, setShowSidebar }) {
                   to={n.path}
                   className={`flex items-center gap-4 px-4 py-3 rounded-md transition-all ${
                     pathname === n.path
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-gray-700 hover:bg-gray-200 hover:text-gray-900"
+                      ? "bg-[#4f2500] text-white shadow-lg"
+                      : " hover:bg-[#7b3a00]  text-white"
                   }`}
                 >
                   <span className="text-lg">{n.icon}</span>
@@ -58,7 +58,7 @@ function Sidebar({ showSidebar, setShowSidebar }) {
 
             {/* Logout Button */}
             <li>
-              <button className="flex items-center gap-4 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-all w-full">
+              <button className="flex items-center gap-4 px-4 py-3 rounded-md text-white  hover:bg-[#7b3a00] cursor-pointer transition-all w-full">
                 <span className="text-lg">
                   <RiLogoutBoxLine />
                 </span>

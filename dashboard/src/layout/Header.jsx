@@ -11,8 +11,8 @@ function Header({ showSidebar, setShowSidebar }) {
   };
 
   return (
-    <div className=" fixed top-0 left-0 w-full py-5 px-4 lg:px-7 z-40">
-      <div className=" ml-0 lg:ml-[260px] rounded-md h-[65px] flex justify-between items-center bg-hdnavbg px-5 transition-all">
+    <div className=" fixed top-0 left-0 w-full py-5 px-4 lg:px-7 z-40  ">
+      <div className=" ml-0 lg:ml-[260px] rounded-md h-[65px] flex justify-between items-center  px-5 transition-all border-b-2 border-white ">
         <div
           onClick={() => setShowSidebar(!showSidebar)}
           className=" w-[35px] flex lg:hidden cursor-pointer p-2 rounded bg-indigo-500  hover:bg-indigo-600"
@@ -32,7 +32,7 @@ function Header({ showSidebar, setShowSidebar }) {
         <div className=" flex justify-center items-center gap-8 relative">
           <div className=" flex justify-center items-center">
             <div className=" flex justify-center items-center gap-3">
-              <div className=" flex justify-center items-center flex-col text-end">
+              <div className=" flex justify-center items-center flex-col text-end text-white">
                 <h2 className=" text-md font-bold">Balvant</h2>
                 <span className=" w-full font-normal text=[14px]">Admin</span>
               </div>
