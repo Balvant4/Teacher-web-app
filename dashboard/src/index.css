@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* Prevent autofill background change */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    background-color: #222b45 !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}

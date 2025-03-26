@@ -46,15 +46,13 @@ const AdminLogin = () => {
   }, [error, successMessage, navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#ffffff]">
-      <div className="w-full max-w-lg p-8 bg-white rounded-xl shadow-lg">
+    <div className="flex items-center justify-center min-h-screen bg-[#101426] text-white">
+      <div className="w-full max-w-lg p-8 bg-[#222b45] rounded-xl shadow-lg">
         {/* Logo */}
         <div className="flex justify-center">
           <img className="w-[20rem] mb-4" src="" alt="Admin Logo" />
         </div>
-        <h2 className="text-3xl font-bold text-center text-gray-800">
-          Admin Login
-        </h2>
+        <h2 className="text-3xl font-bold text-center ">Admin Login</h2>
         <form onSubmit={submit} className="mt-8 space-y-4">
           {/* Reusable Input Components */}
           <InputForm
@@ -76,7 +74,7 @@ const AdminLogin = () => {
           {/* Submit Button */}
           <MainButton
             text={loading ? "Logging in..." : "Login"}
-            className="my-4 w-full bg-indigo-600 hover:bg-indigo-700 rounded-xl text-white font-semibold py-3 transition duration-300 ease-in-out transform hover:scale-105"
+            className="my-4 w-full bg-[#ff7700] hover:bg-[#a74e00] rounded-xl text-white font-semibold py-3 transition duration-300 ease-in-out transform hover:scale-105"
             disabled={loading}
           />
         </form>
