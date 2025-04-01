@@ -1,4 +1,5 @@
 import { z } from "zod";
+import ApiError from "../utils/ApiError.js";
 
 // Define strong password regex
 const passwordRegex =
@@ -83,6 +84,15 @@ export const validateTeacher = (req, res, next) => {
     req.body = teacherSchema.parse(req.body);
     next();
   } catch (error) {
-    res.status(400).json({ error: error.errors });
+    if (error instanceof z.ZodError) {
+      // Collect all error messages
+      const errorMessages = error.errors
+        .map((err) => `${err.path.join(".")}: ${err.message}`)
+        .join(", ");
+
+      return next(new ApiError(401, ` ${errorMessages}`));
+    }
+
+    return next(new ApiError(401, "Something went wrong"));
   }
 };

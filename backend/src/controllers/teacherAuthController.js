@@ -70,7 +70,7 @@ const RegisterTeacher = asyncHandler(async (req, res, next) => {
   const result = await cloudinaryUpload(localfilepath);
 
   if (!result) {
-    return next(new ApiError(500, "upload failed"));
+    return next(new ApiError(500, "Profile Image Upload Failed"));
   }
 
   // ✅ Delete local file after successful Cloudinary upload
@@ -112,15 +112,16 @@ const RegisterTeacher = asyncHandler(async (req, res, next) => {
     );
   }
 
-  return res
-    .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        "Teacher registered successfully! Awaiting admin approval.",
-        createdTeacher
-      )
-    );
+  return res.json(
+    new ApiResponse(
+      201,
+      {
+        teacher: createdTeacher,
+        message: "Teacher registered successfully! Awaiting admin approval...",
+      },
+      "Teacher registered successfully! Awaiting admin approval..."
+    )
+  );
 });
 
 const LoginTeacher = asyncHandler(async (req, res, next) => {

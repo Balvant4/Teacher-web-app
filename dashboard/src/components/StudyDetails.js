@@ -5,9 +5,7 @@ const TeachingMode = [
 ];
 
 const SubjectDetails = [
-  { value: "10 Math", label: "10 Math" },
-  { value: "11 Math", label: "11 Math" },
-  { value: "12 Math", label: "12 Math" },
+  { value: "Math", label: "Math" },
   { value: "Biology", label: "Biology" },
   { value: "Physics", label: "Physics" },
 ];
