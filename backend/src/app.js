@@ -25,4 +25,8 @@ app.use("/api/v1/auth/", authRouter);
 // Use Global Error Handler (Always at the end)
 app.use(errorHandler);
 
+app.get("/", (req, res) => {
+  res.send("welcome to the home page");
+});
+
 export default app;
