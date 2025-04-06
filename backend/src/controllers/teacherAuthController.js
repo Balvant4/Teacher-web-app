@@ -6,9 +6,11 @@ import cloudinaryUpload from "../utils/Cloudinary.js";
 import fs from "fs";
 import sendEmail from "../utils/sendEmail.js";
 
-const generateAccessAndRefereshTokens = async (teacherId) => {
+const generateAccessAndRefreshTokens = async (teacherId) => {
   try {
     const teacher = await Teacher.findById(teacherId);
+    if (!teacher) throw new ApiError(404, "Teacher not found");
+
     const accessToken = teacher.generateAccessToken();
     const refreshToken = teacher.generateRefreshToken();
 
@@ -17,10 +19,7 @@ const generateAccessAndRefereshTokens = async (teacherId) => {
 
     return { accessToken, refreshToken };
   } catch (error) {
-    return new ApiError(
-      500,
-      "Something while wrong when generating refresh and access token"
-    );
+    throw new ApiError(500, "Error generating tokens");
   }
 };
 
@@ -129,15 +128,16 @@ const LoginTeacher = asyncHandler(async (req, res, next) => {
 
   const teacher = await Teacher.findOne({
     $or: [{ username }, { email }],
-  });
+  }).select("+password +refreshToken"); // Fetch password & refreshToken fields
 
   if (!teacher) {
     return next(new ApiError(401, "Teacher does not exist"));
   }
 
-  // if (teacher.isApproved !== false || teacher.status !== "Approved") {
-  //   return next(new ApiError(401, "Your account is not approved yet"));
-  // }
+  // Ensure only approved teachers can log in
+  if (!teacher.isApproved || teacher.status !== "Approved") {
+    return next(new ApiError(401, "Your account is not approved yet"));
+  }
 
   const isPasswordValid = await teacher.isPasswordCorrect(password);
 
@@ -145,33 +145,38 @@ const LoginTeacher = asyncHandler(async (req, res, next) => {
     return next(new ApiError(401, "Password Incorrect"));
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     teacher._id
   );
 
-  const loggedInTeacher = await Teacher.findById(teacher._id).select(
-    "-password -refreshToken"
-  );
+  // Store refresh token in DB
+  teacher.refreshToken = refreshToken;
+  await teacher.save({ validateBeforeSave: false });
 
+  // Cookie options
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "Strict", // Prevent CSRF attacks
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   };
 
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-
     .json(
       new ApiResponse(
         200,
         {
-          teacher: loggedInTeacher,
-          accessToken,
-          refreshToken,
+          teacher: {
+            _id: teacher._id,
+            username: teacher.username,
+            fullName: teacher.fullName,
+            email: teacher.email,
+          },
         },
-        "User logged In successfully"
+        "User logged in successfully"
       )
     );
 });

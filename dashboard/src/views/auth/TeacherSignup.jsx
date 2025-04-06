@@ -9,7 +9,7 @@ import {
   LanguageDetails,
   SubjectDetails,
   TeachingMode,
-} from "../../components/StudyDetails.js";
+} from "../../data/StudyDetails.js";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { teacherRegister } from "../../store/Reducers/teacherAuthReducers.js";
